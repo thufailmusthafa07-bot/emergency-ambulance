@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
 import { prisma } from '../config/db';
+import { checkTableExists } from '../utils/tableCheck';
 import { sendSuccess, sendError } from '../utils/response';
 
 const recipientFilter = (userId: string) => ({
@@ -11,6 +12,8 @@ export const getNotifications = async (req: AuthenticatedRequest, res: Response)
   try {
     if (!req.user) return sendError(res, 'Unauthorized', 401);
     const where = recipientFilter(req.user.userId);
+    const hasNotification = await checkTableExists('Notification');
+    if (!hasNotification) return sendSuccess(res, { notifications: [], unreadCount: 0 });
     const [notifications, unreadCount] = await Promise.all([
       prisma.notification.findMany({ where, orderBy: { createdAt: 'desc' }, take: 100 }),
       prisma.notification.count({ where: { ...where, isRead: false } }),

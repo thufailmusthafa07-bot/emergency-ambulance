@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { prisma } from '../config/db';
+import { checkTableExists } from '../utils/tableCheck';
 import { sendSuccess, sendError } from '../utils/response';
 import { createEmergencySchema, updateEmergencyStatusSchema } from '../validators/schemas';
 import { EmergencySeverityEnum, EmergencyStatusEnum } from '@prisma/client';
@@ -60,7 +61,7 @@ export const createEmergency = async (req: Request, res: Response) => {
         },
       });
 
-      await tx.notification.create({
+      if (await checkTableExists('Notification')) await tx.notification.create({
         data: {
           recipientId: null,
           title: 'Emergency Request Logged',
@@ -112,7 +113,7 @@ export const updateEmergencyStatus = async (req: Request, res: Response) => {
         },
       });
 
-      await tx.notification.create({
+      if (await checkTableExists('Notification')) await tx.notification.create({
         data: {
           recipientId: null,
           title: 'Emergency Status Updated',

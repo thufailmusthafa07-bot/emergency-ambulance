@@ -2,7 +2,7 @@
  * API client for the configured Nalam Nagar backend.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -21,7 +21,11 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
     ...(options.headers || {}),
   };
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const cleanBase = API_BASE_URL.replace(/\/+$/, '');
+  const url = `${cleanBase}${cleanEndpoint}`;
+
+  const response = await fetch(url, {
     ...options,
     headers,
   });

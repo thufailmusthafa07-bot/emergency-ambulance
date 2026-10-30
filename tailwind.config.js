@@ -26,7 +26,9 @@ export default {
         borderLine: '#D0D5DD',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
+        serif: ['Inter', 'sans-serif'],
+        mono: ['Inter', 'sans-serif'],
       },
     },
   },

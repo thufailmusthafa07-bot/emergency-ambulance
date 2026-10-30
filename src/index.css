@@ -1,7 +1,15 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Inter", sans-serif;
+  --font-mono: "Inter", sans-serif;
+}
+
 :root {
+  --font-family-primary: "Inter", sans-serif;
+
   /* Premium operator dashboard palette */
   --bg-app: #edf4f7;
   --bg-surface: rgba(255, 255, 255, 0.88);
@@ -64,15 +72,18 @@
   --sev-minor-border: #14532d;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   min-height: 100%;
   height: 100%;
+  font-family: var(--font-family-primary);
 }
 
 body {
   background: radial-gradient(circle at top left, #f7fbff 0%, #eef4f7 28%, #eaf1f6 100%);
   color: var(--ink-primary);
-  font-family: 'Public Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-family-primary);
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -85,12 +96,28 @@ body {
   background: radial-gradient(circle at top left, #102135 0%, #091b2a 33%, #071521 100%);
 }
 
-h1, h2, h3, .font-serif {
-  font-family: 'Source Serif 4', Georgia, serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-serif {
+  font-family: var(--font-family-primary);
 }
 
-.font-mono, code, .id-pill {
-  font-family: 'IBM Plex Mono', monospace;
+.font-mono,
+code,
+.id-pill {
+  font-family: var(--font-family-primary);
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
 }
 
 .municipal-card {

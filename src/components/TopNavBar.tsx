@@ -123,15 +123,18 @@ export const TopNavBar: React.FC = () => {
           
           {/* Municipal Brand Identity */}
           <div className="flex items-center gap-6">
-            <Link to={dashboardPath} className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#0f766e] to-[#0b5f59] flex items-center justify-center text-white font-serif font-bold text-base shadow-[0_10px_18px_rgba(15,118,110,0.25)]">
+            <Link 
+              to={dashboardPath} 
+              className="flex items-center gap-3 shrink-0 rounded-lg group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0f766e]"
+            >
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#0f766e] to-[#0b5f59] flex items-center justify-center text-white font-bold text-base shadow-sm ring-1 ring-[#0f766e]/20 shrink-0 transition-transform group-hover:scale-105">
                 N
               </div>
-              <div>
-                <span className="font-serif font-bold text-sm text-[#132437] dark:text-[#edf5ff] tracking-tight block leading-tight">
+              <div className="flex flex-col justify-center min-w-0">
+                <span className="font-bold text-[15px] sm:text-base text-[#132437] dark:text-[#edf5ff] tracking-tight leading-tight block whitespace-nowrap">
                   Nalam Nagar
                 </span>
-                <span className="text-[10px] text-[#596f86] dark:text-[#abc0d3] font-medium tracking-normal block leading-none">
+                <span className="text-[10.5px] sm:text-[11px] text-[#596f86] dark:text-[#abc0d3] font-medium tracking-normal block leading-tight mt-0.5 whitespace-nowrap">
                   Emergency Dispatch Service
                 </span>
               </div>
@@ -208,13 +211,6 @@ export const TopNavBar: React.FC = () => {
                       className={dropdownLinkClass}
                     >
                       System Telemetry
-                    </NavLink>
-                    <NavLink 
-                      to="/settings" 
-                      onClick={() => setIsMoreOpen(false)}
-                      className={dropdownLinkClass}
-                    >
-                      Account & Settings
                     </NavLink>
                     {(profile?.role === 'ADMIN' || profile?.role === 'Administrator') && (
                       <NavLink

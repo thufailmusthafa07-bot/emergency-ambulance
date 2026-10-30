@@ -13,6 +13,7 @@ import { randomUUID } from 'node:crypto';
 import { prisma } from '../config/db';
 import { requireRole } from '../middleware/authMiddleware';
 import { facilityKey, hospitalSupportsFacility } from '../utils/facilityMatching';
+import { checkTableExists } from '../utils/tableCheck';
 
 const router = Router();
 
@@ -257,7 +258,7 @@ async function recalculateActiveTrips(
         },
       });
 
-      await db.notification.create({
+      if (await checkTableExists('Notification')) await db.notification.create({
         data: {
           title: `Trip ${trip.id} Path Severed`,
           message: `Mission ${trip.id} (Ambulance ${trip.ambulanceId}) is blocked by road closure on ${startName} - ${endName}.`,
@@ -293,7 +294,7 @@ async function recalculateActiveTrips(
       });
 
       if (wasBlocked) {
-        await db.notification.create({
+        if (await checkTableExists('Notification')) await db.notification.create({
           data: {
             title: `Trip ${trip.id} Restored`,
             message: `Mission ${trip.id} route unblocked via ${combinedRoutePath.join(' -> ')}. New ETA: ${newTotalMinutes.toFixed(1)} mins.`,
@@ -369,8 +370,8 @@ async function selectDispatch(db: Prisma.TransactionClient, requestId?: string, 
   const candidates = requestId
     ? requests
     : requests.sort((left, right) =>
-        priority[right.severity] - priority[left.severity] || left.createdAt.getTime() - right.createdAt.getTime()
-      );
+      priority[right.severity] - priority[left.severity] || left.createdAt.getTime() - right.createdAt.getTime()
+    );
 
   const [roads, ambulances, hospitals] = await Promise.all([
     db.road.findMany(),
@@ -425,7 +426,7 @@ async function selectDispatch(db: Prisma.TransactionClient, requestId?: string, 
     const { hospital, route: hospitalRoute } = hospitalOptions[0];
     const pathToIncident = ambulanceRoute.path.map((name) => ids.byName.get(name) ?? name);
     const pathToHospital = hospitalRoute.path.map((name) => ids.byName.get(name) ?? name);
-    
+
     const allTrips = await db.trip.findMany({ select: { id: true } });
     const maxNum = allTrips.reduce((max, t) => {
       const match = t.id.match(/^TRIP-(\d+)$/);
@@ -485,7 +486,7 @@ async function selectDispatch(db: Prisma.TransactionClient, requestId?: string, 
       },
     });
 
-    await db.notification.create({
+    if (await checkTableExists('Notification')) await db.notification.create({
       data: {
         title: request.severity === EmergencySeverityEnum.CRITICAL ? 'Critical emergency dispatched' : 'Emergency dispatched',
         message: `Request ${request.id} assigned to ambulance ${ambulance.id} for hospital ${hospital.name}.`,
@@ -605,7 +606,7 @@ router.post('/requests', async (req, res) => {
           statusHistory: { create: { status: EmergencyStatusEnum.PENDING, changedBy: 'Dispatch desk' } },
         },
       });
-      await db.notification.create({
+      if (await checkTableExists('Notification')) await db.notification.create({
         data: {
           title: severity === EmergencySeverityEnum.CRITICAL ? 'Critical emergency request' : 'New emergency request',
           message: `Request ${emergency.id} logged at ${location.name}; required department: ${facility}.`,
@@ -759,7 +760,7 @@ router.post('/ambulances', requireRole(['ADMIN', 'DISPATCHER']) as any, async (r
         },
       });
 
-      await db.notification.create({
+      if (await checkTableExists('Notification')) await db.notification.create({
         data: {
           title: 'Ambulance Added to Fleet',
           message: `Unit ${amb.id} (${amb.registrationNumber}) is in service at ${amb.currentLocation}.`,
@@ -859,7 +860,7 @@ router.patch('/ambulances/:id/status', requireRole(['ADMIN', 'DISPATCHER', 'AMBU
       }
 
       if (mappedStatus === AmbulanceStatusEnum.MAINTENANCE) {
-        await db.notification.create({
+        if (await checkTableExists('Notification')) await db.notification.create({
           data: {
             title: 'Ambulance Out for Maintenance',
             message: `Unit ${amb.id} (${amb.registrationNumber}) placed in maintenance at ${amb.currentLocation}.`,
@@ -867,7 +868,7 @@ router.patch('/ambulances/:id/status', requireRole(['ADMIN', 'DISPATCHER', 'AMBU
           },
         });
       } else if (mappedStatus === AmbulanceStatusEnum.AVAILABLE && ambulance.status !== AmbulanceStatusEnum.AVAILABLE) {
-        await db.notification.create({
+        if (await checkTableExists('Notification')) await db.notification.create({
           data: {
             title: 'Ambulance Back in Service',
             message: `Unit ${amb.id} (${amb.registrationNumber}) is now available at ${amb.currentLocation}.`,
@@ -1113,7 +1114,7 @@ router.post('/hospitals', requireRole(['ADMIN', 'DISPATCHER']) as any, async (re
         },
       });
 
-      await db.notification.create({
+      if (await checkTableExists('Notification')) await db.notification.create({
         data: {
           title: 'Hospital Added',
           message: `${hosp.name} registered at node ${ids.byName.get(resolvedLocationName) ?? resolvedLocationName} with ${hosp.availableBeds} beds available.`,
@@ -1184,7 +1185,7 @@ router.patch('/hospitals/:id/capacity', requireRole(['ADMIN', 'DISPATCHER']) as 
         },
       });
 
-      await db.notification.create({
+      if (await checkTableExists('Notification')) await db.notification.create({
         data: {
           title: 'Hospital Bed Capacity Updated',
           message: `${updated.name} now reports ${updated.availableBeds}/${updated.totalBeds} available beds (${updated.status}).`,
@@ -1342,7 +1343,7 @@ router.post('/network/locations', requireRole(['ADMIN', 'DISPATCHER']) as any, a
         },
       });
 
-      await db.notification.create({
+      if (await checkTableExists('Notification')) await db.notification.create({
         data: {
           title: 'New Location Added',
           message: `Network location ${created.id} (${created.name}) added to town map.`,
@@ -1485,7 +1486,7 @@ router.post(['/roads', '/network/roads'], requireRole(['ADMIN', 'DISPATCHER']) a
         },
       });
 
-      await db.notification.create({
+      if (await checkTableExists('Notification')) await db.notification.create({
         data: {
           title: 'Road Segment Added',
           message: `New road added between ${resolvedStart} and ${resolvedEnd} (${dist} km, ${minutes} min base).`,
@@ -1553,7 +1554,7 @@ router.patch('/roads/:id/traffic', requireRole(['ADMIN', 'DISPATCHER']) as any, 
         },
       });
       if (currentTraffic === TrafficConditionEnum.HEAVY) {
-        await db.notification.create({
+        if (await checkTableExists('Notification')) await db.notification.create({
           data: {
             title: 'Heavy traffic condition reported',
             message: `Heavy traffic reported on ${changedRoad.startLocation} to ${changedRoad.endLocation}.`,
@@ -1583,7 +1584,7 @@ router.post('/roads/:id/close', requireRole(['ADMIN', 'DISPATCHER']) as any, asy
         where: { id: req.params.id },
         data: { status: RoadStatusEnum.CLOSED, closureReason: reason },
       });
-      await db.notification.create({
+      if (await checkTableExists('Notification')) await db.notification.create({
         data: {
           title: 'Road closed',
           message: `Road from ${changedRoad.startLocation} to ${changedRoad.endLocation} is closed. ${changedRoad.closureReason}`.trim(),
@@ -1608,7 +1609,7 @@ router.post('/roads/:id/open', requireRole(['ADMIN', 'DISPATCHER']) as any, asyn
   try {
     const { updated, recalculations } = await prisma.$transaction(async (db) => {
       const changedRoad = await db.road.update({ where: { id: req.params.id }, data: { status: RoadStatusEnum.OPEN, closureReason: '' } });
-      await db.notification.create({
+      if (await checkTableExists('Notification')) await db.notification.create({
         data: {
           title: 'Road reopened',
           message: `Road from ${changedRoad.startLocation} to ${changedRoad.endLocation} is open again.`,
@@ -1674,7 +1675,7 @@ router.get('/trips/:id', async (req, res) => {
       ambulance: trip.ambulance,
       hospital: trip.hospital,
       emergency: trip.emergency,
-      
+
     });
   } catch (error) {
     return sendError(res, error);
@@ -1758,7 +1759,7 @@ router.patch('/trips/:id/status', requireRole(['ADMIN', 'DISPATCHER', 'AMBULANCE
             },
           },
         });
-        await db.notification.create({
+        if (await checkTableExists('Notification')) await db.notification.create({
           data: {
             title: 'Trip completed',
             message: `Trip ${currentTrip.id} completed; ambulance ${currentTrip.ambulanceId} and a hospital bed were released.`,
@@ -1789,7 +1790,7 @@ router.patch('/trips/:id/status', requireRole(['ADMIN', 'DISPATCHER', 'AMBULANCE
             },
           },
         });
-        await db.notification.create({
+        if (await checkTableExists('Notification')) await db.notification.create({
           data: {
             title: 'Trip cancelled',
             message: `Trip ${currentTrip.id} cancelled; ambulance ${currentTrip.ambulanceId} and hospital bed released.`,
@@ -1901,7 +1902,7 @@ router.post('/trips/:id/complete', requireRole(['ADMIN', 'DISPATCHER', 'AMBULANC
         where: { id: hospital.id, availableBeds: { lt: hospital.totalBeds } },
         data: { availableBeds: { increment: 1 } },
       });
-      await db.notification.create({
+      if (await checkTableExists('Notification')) await db.notification.create({
         data: {
           title: 'Trip completed',
           message: `Trip ${trip.id} completed; ambulance ${trip.ambulanceId} and a hospital bed were released.`,
@@ -1962,7 +1963,7 @@ router.post('/trips/:id/cancel', requireRole(['ADMIN', 'DISPATCHER']) as any, as
         },
       });
 
-      await db.notification.create({
+      if (await checkTableExists('Notification')) await db.notification.create({
         data: {
           title: 'Trip cancelled',
           message: `Trip ${trip.id} was cancelled. Ambulance ${trip.ambulanceId} and hospital bed were released.`,
@@ -2171,7 +2172,7 @@ router.post('/dispatch/execute', requireRole(['ADMIN', 'DISPATCHER']) as any, as
         },
       });
 
-      await db.notification.create({
+      if (await checkTableExists('Notification')) await db.notification.create({
         data: {
           title: emergency.severity === EmergencySeverityEnum.CRITICAL ? 'Critical emergency dispatched' : 'Emergency dispatched',
           message: `Request ${emergency.id} assigned to ambulance ${ambulance.id} for hospital ${hospital.name}.`,

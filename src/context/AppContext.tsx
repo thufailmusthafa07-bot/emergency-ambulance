@@ -107,7 +107,7 @@ interface AppContextType {
   trips: MissionTrip[];
   isRefreshing: boolean;
   lastError: string | null;
-  
+
   refreshAllData: () => Promise<void>;
   createEmergency: (data: {
     callerName: string;
@@ -139,14 +139,16 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
+const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/api\/?$/, '');
 const apiFetch = (path: string, options: RequestInit = {}) => {
   const headers = new Headers(options.headers);
   const rawToken = localStorage.getItem('nalam_nagar_token');
   const token = rawToken && rawToken !== 'undefined' && rawToken !== 'null' ? rawToken : null;
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
-  return fetch(`${API_BASE}${path}`, { ...options, headers });
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  const url = API_BASE ? `${API_BASE}${cleanPath}` : cleanPath;
+  return fetch(url, { ...options, headers });
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

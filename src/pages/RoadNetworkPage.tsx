@@ -167,11 +167,10 @@ export const RoadNetworkPage: React.FC = () => {
 
       {/* Status Notifications */}
       {statusMsg && (
-        <div className={`p-3.5 rounded text-xs flex items-center justify-between border ${
-          statusMsg.type === 'success'
+        <div className={`p-3.5 rounded text-xs flex items-center justify-between border ${statusMsg.type === 'success'
             ? 'bg-[#E6F3F2] dark:bg-[#16363B] border-[#0E6B66]/30 text-[#0E6B66] dark:text-[#1DB8AF]'
             : 'bg-[#FDEDEC] dark:bg-[#381A1C] border-[#F5C6CB] text-[#C62828] dark:text-[#F87171]'
-        }`}>
+          }`}>
           <div className="flex items-center gap-2">
             {statusMsg.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
             <span>{statusMsg.text}</span>
@@ -486,7 +485,7 @@ export const RoadNetworkPage: React.FC = () => {
                     textAnchor="middle"
                     fontSize="9"
                     fontWeight="bold"
-                    fontFamily="IBM Plex Mono"
+                    fontFamily="'Inter', sans-serif"
                     fill={strokeColor}
                   >
                     {road.currentMinutes.toFixed(0)}m
@@ -544,7 +543,7 @@ export const RoadNetworkPage: React.FC = () => {
                     y={loc.y + (isHospital ? 34 : 30)}
                     textAnchor="middle"
                     fontSize="8"
-                    fontFamily="IBM Plex Mono"
+                    fontFamily="'Inter', sans-serif"
                     fill="#667085"
                   >
                     {loc.id}
@@ -577,7 +576,7 @@ export const RoadNetworkPage: React.FC = () => {
 
       {/* Network Tables (Locations & Roads) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        
+
         {/* Locations List */}
         <div className="municipal-card p-4 space-y-3">
           <div className="flex items-center justify-between border-b border-[#DDD8CE] dark:border-[#323C4D] pb-2">
@@ -591,11 +590,10 @@ export const RoadNetworkPage: React.FC = () => {
               <div
                 key={loc.id}
                 onClick={() => setSelectedNode(loc.id)}
-                className={`p-2 rounded border cursor-pointer transition-colors flex items-center justify-between ${
-                  selectedNode === loc.id
+                className={`p-2 rounded border cursor-pointer transition-colors flex items-center justify-between ${selectedNode === loc.id
                     ? 'border-[#0E6B66] bg-[#E6F3F2]/50 dark:bg-[#16363B]/50'
                     : 'border-[#DDD8CE] dark:border-[#323C4D] hover:bg-[#F5F2EC] dark:hover:bg-[#252D3A]'
-                }`}
+                  }`}
               >
                 <div>
                   <span className="font-semibold text-[#1D2433] dark:text-[#F0F4F8]">{loc.name}</span>
