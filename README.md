@@ -99,3 +99,4 @@ Incoming emergency calls are sorted using a 2-tier priority rule:
 ## ⚠️ Academic Disclaimer
 
 > **IMPORTANT**: This project is an academic prototype built to demonstrate frontend software architecture, Dijkstra route optimization algorithms, priority queue dispatching, and control-center UI design. It does not diagnose patients, determine clinical urgency, replace emergency professionals, or provide real-time medical advice.
+"# emergency-ambulance" 
