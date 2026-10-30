@@ -1,0 +1,211 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  username     String     @unique
+  passwordHash String
+  name         String
+  role         RoleEnum   @default(DISPATCHER)
+  badgeId      String?
+  department   String?
+  avatarUrl    String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Ambulance {
+  id                 String                     @id @default(uuid())
+  registrationNumber String                     @unique
+  driverName         String
+  driverContact      String
+  currentLocation    String
+  status             AmbulanceStatusEnum        @default(AVAILABLE)
+  equipmentType      String                     @default("ALS")
+  isAvailable        Boolean                    @default(true)
+  lat                Float?
+  lng                Float?
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+  locationHistory    AmbulanceLocationHistory[]
+  trips              Trip[]
+}
+
+model AmbulanceLocationHistory {
+  id          String    @id @default(uuid())
+  ambulanceId String
+  location    String
+  timestamp   DateTime  @default(now())
+  ambulance   Ambulance @relation(fields: [ambulanceId], references: [id], onDelete: Cascade)
+}
+
+model Hospital {
+  id            String             @id @default(uuid())
+  name          String
+  address       String
+  location      String
+  contactNumber String
+  type          String             @default("General Emergency")
+  totalBeds     Int                @default(100)
+  availableBeds Int                @default(20)
+  status        HospitalStatusEnum @default(NORMAL)
+  facilities    String[]           @default([])
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  trips         Trip[]
+}
+
+model Emergency {
+  id               String                   @id @default(uuid())
+  callerName       String
+  contactNumber    String
+  emergencyType    String
+  pickupLocation   String
+  severity         EmergencySeverityEnum    @default(SERIOUS)
+  status           EmergencyStatusEnum      @default(PENDING)
+  dispatchNotes    String?
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  requiredFacility String                   @default("GENERAL")
+  statusHistory    EmergencyStatusHistory[]
+  trips            Trip[]
+}
+
+model EmergencyStatusHistory {
+  id          String              @id @default(uuid())
+  emergencyId String
+  status      EmergencyStatusEnum
+  changedAt   DateTime            @default(now())
+  changedBy   String?
+  emergency   Emergency           @relation(fields: [emergencyId], references: [id], onDelete: Cascade)
+}
+
+model Trip {
+  id                       String              @id @default(uuid())
+  requestId                String
+  ambulanceId              String
+  hospitalId               String
+  pickupLocation           String
+  destinationHospital      String
+  status                   TripStatusEnum      @default(DISPATCHED)
+  routePath                String[]            @default([])
+  estimatedDurationMinutes Int                 @default(15)
+  actualDurationMinutes    Int?
+  distanceKm               Float               @default(5.0)
+  startTime                DateTime            @default(now())
+  endTime                  DateTime?
+  createdAt                DateTime            @default(now())
+  updatedAt                DateTime            @updatedAt
+  blocked                  Boolean             @default(false)
+  pathToHospital           String[]            @default([])
+  pathToIncident           String[]            @default([])
+  reasoning                String?
+  timeToHospitalMinutes    Float               @default(0)
+  timeToIncidentMinutes    Float               @default(0)
+  ambulance                Ambulance           @relation(fields: [ambulanceId], references: [id], onDelete: Cascade)
+  hospital                 Hospital            @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  emergency                Emergency           @relation(fields: [requestId], references: [id], onDelete: Cascade)
+}
+
+model Road {
+  id                       String               @id @default(uuid())
+  startLocation            String
+  endLocation              String
+  distanceKm               Float
+  baseTravelTimeMinutes    Float
+  currentTraffic           TrafficConditionEnum @default(LOW)
+  speedLimitKmh            Int                  @default(60)
+  status                   RoadStatusEnum       @default(OPEN)
+  isOneWay                 Boolean              @default(false)
+  createdAt                DateTime             @default(now())
+  updatedAt                DateTime             @updatedAt
+  closureReason            String               @default("")
+  currentTravelTimeMinutes Float?
+}
+
+model NetworkLocation {
+  id                  String   @id
+  name                String   @unique
+  category            String   @default("Landmark")
+  xCoordinatesPercent Float    @default(50)
+  yCoordinatesPercent Float    @default(50)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  title       String
+  message     String
+  type        String   @default("INFO")
+  recipientId String?
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+enum RoleEnum {
+  ADMIN
+  DISPATCHER
+  AMBULANCE_STAFF
+  CITIZEN
+}
+
+enum AmbulanceStatusEnum {
+  AVAILABLE
+  DISPATCHED
+  EN_ROUTE
+  BUSY
+  MAINTENANCE
+  OFF_DUTY
+}
+
+enum HospitalStatusEnum {
+  NORMAL
+  HIGH_LOAD
+  CRITICAL
+}
+
+enum EmergencySeverityEnum {
+  CRITICAL
+  SERIOUS
+  MINOR
+}
+
+enum EmergencyStatusEnum {
+  PENDING
+  ASSIGNED
+  DISPATCHED
+  AT_SCENE
+  TRANSPORTING
+  COMPLETED
+  CANCELLED
+}
+
+enum TripStatusEnum {
+  DISPATCHED
+  EN_ROUTE_PICKUP
+  AT_SCENE
+  TRANSPORTING
+  ARRIVED_HOSPITAL
+  COMPLETED
+  CANCELLED
+}
+
+enum TrafficConditionEnum {
+  LOW
+  MODERATE
+  HEAVY
+}
+
+enum RoadStatusEnum {
+  OPEN
+  CLOSED
+  UNDER_MAINTENANCE
+}

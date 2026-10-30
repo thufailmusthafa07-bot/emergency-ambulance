@@ -1,0 +1,201 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Premium operator dashboard palette */
+  --bg-app: #edf4f7;
+  --bg-surface: rgba(255, 255, 255, 0.88);
+  --bg-subtle: #f5f8fb;
+  --bg-soft: #eef5f8;
+  --border-color: #dfeaf2;
+  --border-subtle: #edf3f8;
+
+  --ink-primary: #132437;
+  --ink-muted: #52687d;
+  --ink-subtle: #7386a0;
+
+  --accent-teal: #0f766e;
+  --accent-teal-hover: #0e5a54;
+  --accent-teal-subtle: #e2f6f3;
+  --accent-blue: #2563eb;
+  --accent-blue-soft: #edf5ff;
+
+  --sev-critical-bg: #fff1f2;
+  --sev-critical-text: #b42318;
+  --sev-critical-border: #f3b7bb;
+
+  --sev-serious-bg: #fff7eb;
+  --sev-serious-text: #b45309;
+  --sev-serious-border: #f7c989;
+
+  --sev-minor-bg: #ecfdf5;
+  --sev-minor-text: #047857;
+  --sev-minor-border: #a8e0c3;
+}
+
+.dark {
+  --bg-app: #081926;
+  --bg-surface: rgba(16, 25, 38, 0.9);
+  --bg-subtle: #122334;
+  --bg-soft: #172b3d;
+  --border-color: #2a3d52;
+  --border-subtle: #24384e;
+
+  --ink-primary: #edf5ff;
+  --ink-muted: #abc0d3;
+  --ink-subtle: #8ea3bb;
+
+  --accent-teal: #2dd4bf;
+  --accent-teal-hover: #14b8a6;
+  --accent-teal-subtle: #12373d;
+  --accent-blue: #7dd3fc;
+  --accent-blue-soft: #132d43;
+
+  --sev-critical-bg: #2a1416;
+  --sev-critical-text: #fda4af;
+  --sev-critical-border: #7f1d1d;
+
+  --sev-serious-bg: #2b1f12;
+  --sev-serious-text: #fbbf24;
+  --sev-serious-border: #7c4d0d;
+
+  --sev-minor-bg: #0d2c22;
+  --sev-minor-text: #6ee7b7;
+  --sev-minor-border: #14532d;
+}
+
+html, body, #root {
+  min-height: 100%;
+  height: 100%;
+}
+
+body {
+  background: radial-gradient(circle at top left, #f7fbff 0%, #eef4f7 28%, #eaf1f6 100%);
+  color: var(--ink-primary);
+  font-family: 'Public Sans', system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.dark body {
+  background: radial-gradient(circle at top left, #102135 0%, #091b2a 33%, #071521 100%);
+}
+
+h1, h2, h3, .font-serif {
+  font-family: 'Source Serif 4', Georgia, serif;
+}
+
+.font-mono, code, .id-pill {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.municipal-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(12px);
+}
+
+.dark .municipal-card {
+  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.38), inset 0 1px 0 rgba(148, 163, 184, 0.06);
+}
+
+.municipal-card table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.municipal-card thead th {
+  background: rgba(148, 163, 184, 0.08);
+  color: var(--ink-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.municipal-card tbody tr {
+  transition: background-color 0.18s ease, transform 0.18s ease;
+}
+
+.municipal-card tbody tr:hover {
+  background: rgba(15, 118, 110, 0.04);
+}
+
+.dark .municipal-card tbody tr:hover {
+  background: rgba(45, 212, 191, 0.05);
+}
+
+::selection {
+  background: rgba(15, 118, 110, 0.16);
+}
+
+.municipal-input {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--ink-primary);
+  font-size: 0.875rem;
+  padding: 0.7rem 0.85rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.municipal-input:focus {
+  border-color: var(--accent-teal);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+}
+
+.badge-critical {
+  background-color: var(--sev-critical-bg);
+  color: var(--sev-critical-text);
+  border: 1px solid var(--sev-critical-border);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.18rem 0.55rem;
+}
+
+.badge-serious {
+  background-color: var(--sev-serious-bg);
+  color: var(--sev-serious-text);
+  border: 1px solid var(--sev-serious-border);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.18rem 0.55rem;
+}
+
+.badge-minor {
+  background-color: var(--sev-minor-bg);
+  color: var(--sev-minor-text);
+  border: 1px solid var(--sev-minor-border);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.18rem 0.55rem;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-subtle);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(88, 107, 130, 0.5);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(76, 95, 118, 0.78);
+}

@@ -1,0 +1,15 @@
+﻿node_modules/
+**/node_modules/
+.env
+.env.*
+!.env.example
+dist/
+build/
+coverage/
+*.log
+*.bak
+*.dump
+backend-java/bin/
+*.class
+backend.zip
+backend/prisma/backup*.sql
